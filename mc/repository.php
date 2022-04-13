@@ -72,6 +72,8 @@ class repository {
         $zip->close();
 
         unlink($destination . "_ok.zip");
+
+        rename("{$destination}/{$this->repository}-{$this->branch}", "{$destination}/{$this->repository}");
     }
 
     public function drop(){

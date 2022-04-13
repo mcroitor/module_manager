@@ -1,6 +1,5 @@
 <?php
 
-include_once __DIR__ . "/mc/logger.php";
 include_once __DIR__ . "/mc/repository.php";
 
 $longopts = [
@@ -32,8 +31,10 @@ function install ($config_file) {
     $config = json_decode(file_get_contents($config_file), true);
 
     foreach ($config as $key => $value) {
+        echo "Installing {$value['user']}/{$value['repository']} ... ";
         $repo = new mc\repository($value);
         $repo->download();
+        echo "[OK]" . PHP_EOL;
     }
 }
 
@@ -41,19 +42,23 @@ function drop($config_file){
     $config = json_decode(file_get_contents($config_file), true);
 
     foreach ($config as $key => $value) {
+        echo "Dropping {$value['user']}/{$value['repository']} ... ";
         $manager = new mc\repository([
             mc\repository::REPOSITORY => $value[mc\repository::REPOSITORY]
         ]);
         $manager->drop();
+        echo "[OK]" . PHP_EOL;
     }
 }
 
 function reinstall ($config_file) {
+    echo "Reinstalling modules ... " . PHP_EOL;
     drop($config_file);
     install($config_file);
+    echo "Done." . PHP_EOL;
 }
 
-$opts = getopt(null, $longopts);
+$opts = getopt("", $longopts);
 
 if(isset($opts["help"]) || !(isset($opts["install"]) || isset($opts["reinstall"]) || isset($opts["drop"]))) {
     usage();
