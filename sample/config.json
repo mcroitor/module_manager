@@ -5,6 +5,7 @@
     },
     {
         "user": "mcroitor",
-        "repository": "logger"
+        "repository": "logger",
+        "entrypoint": "src/mc/logger.php"
     }
 ]
