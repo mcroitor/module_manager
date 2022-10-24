@@ -6,49 +6,73 @@ namespace mc;
  * repository downloader
  */
 class repository {
-    public const URL            = "url";
+    public const ORIGIN         = "origin";
     public const REPOSITORY     = "repository";
     public const BRANCH         = "branch";
     public const USER           = "user";
     public const TOKEN          = "token";
     public const DESTINATION    = "destination";
 
-    private string $url         = "https://github.com/";
+    private string $origin      = "https://github.com/";
     private string $repository;
     private string $branch      = "main";
     private string $user;
     private string $token       = "";
     private string $destination = "./modules/";
 
+    /**
+     * create repository downloader from $config array
+     * @param array $config
+     */
     public function __construct(array $config) {
         foreach ($config as $key => $value) {
             $this->$key = $value;
         }
     }
 
-    public function url() {
-        return $this->url;
+    /**
+     * returns repository host / origin
+     * @return string
+     */
+    public function origin() {
+        return $this->origin;
     }
 
+    /**
+     * returns repository name
+     * @return string
+     */
     public function repository() {
         return $this->repository;
     }
 
+    /**
+     * returns repository branch
+     * @return string
+     */
     public function branch() {
         return $this->branch;
     }
 
-    public function link() {
+    /**
+     * returns URL to the archived repository branch
+     * @return string
+     */
+    public function url() {
         // https://github.com/mcroitor/database/archive/refs/heads/main.zip
-        return "{$this->url}{$this->user}/{$this->repository}/archive/refs/heads/{$this->branch}.zip";
+        return "{$this->origin}{$this->user}/{$this->repository}/archive/refs/heads/{$this->branch}.zip";
     }
 
+    /**
+     * download repository branch to the $destination folder
+     * @param string $destination
+     */
     public function download(string $destination = "") {
         if(empty($destination)) {
             $destination = $this->destination;
         }
 
-        $ch = curl_init($this->link());
+        $ch = curl_init($this->url());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -76,6 +100,9 @@ class repository {
         rename("{$destination}/{$this->repository}-{$this->branch}", "{$destination}/{$this->repository}");
     }
 
+    /**
+     * remove content of $this->destination folder
+     */
     public function drop(){
         $files = glob($this->destination . "*");
 
@@ -84,6 +111,10 @@ class repository {
         }
     }
 
+    /**
+     * helper method, remove folder with content
+     * @param string $path
+     */
     private static function remove(string $path) {
         if(is_dir($path)) {
             $files = array_diff(scandir($path), ['.', '..']);

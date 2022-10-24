@@ -13,6 +13,9 @@ $longopts = [
 $config_file = "config.json";
 $debug = false;
 
+/**
+ * print usage
+ */
 function usage () {
     echo "Usage: manager.php [options]" . PHP_EOL;
     echo "Options:" . PHP_EOL;
@@ -23,6 +26,9 @@ function usage () {
     echo "  --config=<path>        Path to the config file" . PHP_EOL;
 }
 
+/**
+ * install modules defined in the config file
+ */
 function install ($config_file) {
     if(!file_exists($config_file)) {
         echo "Config file not found" . PHP_EOL;
@@ -30,27 +36,38 @@ function install ($config_file) {
     }
     $config = json_decode(file_get_contents($config_file), true);
 
-    foreach ($config as $key => $value) {
-        echo "Installing {$value['user']}/{$value['repository']} ... ";
-        $repo = new mc\repository($value);
+    foreach ($config as $module_config) {
+        echo "Installing {$module_config['user']}/{$module_config['repository']} ... ";
+        $repo = new mc\repository($module_config);
         $repo->download();
         echo "[OK]" . PHP_EOL;
     }
 }
 
+/**
+ * drop modules defined in config file
+ */
 function drop($config_file){
+    if(!file_exists($config_file)) {
+        echo "Config file not found" . PHP_EOL;
+        return;
+    }
+
     $config = json_decode(file_get_contents($config_file), true);
 
-    foreach ($config as $key => $value) {
-        echo "Dropping {$value['user']}/{$value['repository']} ... ";
+    foreach ($config as $module_config) {
+        echo "Dropping {$module_config['user']}/{$module_config['repository']} ... ";
         $manager = new mc\repository([
-            mc\repository::REPOSITORY => $value[mc\repository::REPOSITORY]
+            mc\repository::REPOSITORY => $module_config[mc\repository::REPOSITORY]
         ]);
         $manager->drop();
         echo "[OK]" . PHP_EOL;
     }
 }
 
+/**
+ * reinstall modules defined in the config file
+ */
 function reinstall ($config_file) {
     echo "Reinstalling modules ... " . PHP_EOL;
     drop($config_file);

@@ -28,7 +28,7 @@ The next default values are set:
 
  If _entrypoint_ is missing, no files will be included to autoload.
  
- It means, the minimal configuration file with 2 modules will be:
+ It means, the minimal configuration file `config.json` with 2 modules will be:
  
  ```json
  [
@@ -43,3 +43,43 @@ The next default values are set:
  ]
  ```
  
+### check usage
+
+Just type in the command line:
+
+```shell
+php manager.php --help
+```
+
+or without any key.
+
+### install modules
+
+Type in command line next command:
+
+```shell
+php manager.php --install
+```
+
+If you want to install modules from other config file, `modules.json` for example,
+you can specify this in the `--config` key:
+
+```shell
+php manager.php --install --config=modules.json
+```
+
+### reinstall modules
+
+Type in command line next command for reinstalling / updating modules:
+
+```shell
+php manager.php --reinstall
+```
+
+### drop modules
+
+The next command will remove all downloaded / installed modules:
+
+```shell
+php manager.php --drop
+```

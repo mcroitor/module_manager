@@ -12,6 +12,6 @@ $git = new repository([
 
 mkdir(__DIR__ . "/../modules/");
 
-echo $git->link();
+echo $git->url();
 
 $git->download(__DIR__ . "/../modules/database");
