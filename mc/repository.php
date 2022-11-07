@@ -55,6 +55,22 @@ class repository {
     }
 
     /**
+     * returns user / organisation name, repository owner
+     * @return string
+     */
+    public function user() {
+        return $this->user;
+    }
+
+    /**
+     * returns path for repository storing.
+     * @return string
+     */
+    public function destination() {
+        return $this->destination;
+    }
+
+    /**
      * returns URL to the archived repository branch
      * @return string
      */
