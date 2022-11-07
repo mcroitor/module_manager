@@ -4,6 +4,7 @@ include_once __DIR__ . "/mc/repository.php";
 
 $longopts = [
     "help",
+    "info",
     "install",
     "reinstall",
     "drop",
@@ -22,11 +23,29 @@ function usage () {
     echo "Usage: manager.php [options]" . PHP_EOL;
     echo "Options:" . PHP_EOL;
     echo "  --help                 Show this help" . PHP_EOL;
+    echo "  --info                 Print module configuration" . PHP_EOL;
     echo "  --install              Install libraries" . PHP_EOL;
     echo "  --reinstall            Reinstall libraries" . PHP_EOL;
     echo "  --drop                 Drop all libraries" . PHP_EOL;
     echo "  --entrypoint=<path>    Path to the entrypoint file" . PHP_EOL;
     echo "  --config=<path>        Path to the config file" . PHP_EOL;
+}
+
+/**
+ * print module configuration
+ */
+function info (string $config_file) {
+    if(!file_exists($config_file)) {
+        echo "Config file not found" . PHP_EOL;
+        return;
+    }
+    $config = json_decode(file_get_contents($config_file), true);
+    echo "module configuration:" . PHP_EOL;
+    foreach ($config as $module_config) {
+        $repo = new mc\repository($module_config);
+        echo "\t" . $repo->user() . "/" . $repo->repository() 
+            . " => " . $repo->destination() . " : " . $repo->url() . PHP_EOL;
+    }
 }
 
 /**
@@ -68,9 +87,7 @@ function drop(string $config_file){
 
     foreach ($config as $module_config) {
         echo "Dropping {$module_config['user']}/{$module_config['repository']} ... ";
-        $manager = new mc\repository([
-            mc\repository::REPOSITORY => $module_config[mc\repository::REPOSITORY]
-        ]);
+        $manager = new mc\repository($module_config);
         $manager->drop();
         echo "[OK]" . PHP_EOL;
     }
@@ -123,7 +140,7 @@ function entrypoint(string $config_file, string $entrypoint = "entrypoint.php") 
 
 $opts = getopt("", $longopts);
 
-if(isset($opts["help"]) || !(isset($opts["install"]) || isset($opts["reinstall"]) || isset($opts["drop"]))) {
+if(isset($opts["help"]) || !(isset($opts["install"]) || isset($opts["info"]) || isset($opts["reinstall"]) || isset($opts["drop"]))) {
     usage();
     exit(0);
 }
@@ -134,6 +151,11 @@ if(isset($opts["config"])) {
 
 if(isset($opts["entrypoint"])) {
     $entrypoint = $opts["entrypoint"];
+}
+
+if(isset($opts["info"])) {
+    info($config_file);
+    exit(0);
 }
 
 if(isset($opts["install"])) {
@@ -150,6 +172,8 @@ if(isset($opts["reinstall"])) {
 
 if(isset($opts["drop"])) {
     drop($config_file);
-    unlink($entrypoint);
+    if(file_exists($entrypoint)){
+        unlink($entrypoint);
+    }
     exit(0);
 }

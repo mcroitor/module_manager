@@ -1,11 +1,13 @@
 [
     {
         "user" : "mcroitor",
-        "repository" : "database"
+        "repository" : "database",
+        "destination" : "oops"
     },
     {
         "user": "mcroitor",
         "repository": "logger",
-        "entrypoint": "src/mc/logger.php"
+        "entrypoint": "src/mc/logger.php",
+        "destination" : "oops"
     }
 ]
