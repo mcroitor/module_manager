@@ -1,6 +1,7 @@
 # module download manager
 
-Module Download Manager allows download project from GITHUB (or other GIT) repositories.
+Module Download Manager allows download project from GITHUB (or other GIT) repositories. The file 
+`manager.php` is a standalone minified version of manager, `src` folder contains 
 
 ## usage
 
@@ -14,7 +15,8 @@ For the first, you need to have a `config.json` configuration file, that describ
   "user" : "<user>", 
   "repository" : "<repo>",
   "branch" : "<branch>",
-  "destination" : "<destination>", 
+  "destination" : "<destination>",
+  "source" : "<source>",
   "entrypoint" : "<entry point>"
  }
 ```
