@@ -1,5 +1,6 @@
 <?php
 
+include_once __DIR__ . "/mc/filesystem.php";
 include_once __DIR__ . "/mc/repository.php";
 
 $longopts = [
@@ -61,13 +62,21 @@ function install (string $config_file) {
     foreach ($config as $module_config) {
         echo "Installing {$module_config['user']}/{$module_config['repository']} ... ";
         $path = empty($module_config["destination"]) ? "./modules" : $module_config["destination"];
+        // check if destination folder exists, create it
+        if(!file_exists($path)) {
+            mkdir($path);
+        }
+
         $path .= DIRECTORY_SEPARATOR . $module_config["repository"];
+        // if repository folder exists, warn
         if(file_exists($path)){
             echo PHP_EOL;
-            echo "[warning] module {$module_config['repository']} exists.";
+            echo "[warn] module {$module_config['repository']} exists.";
             echo " Did you want to reinstall it? SKIP MODULE" . PHP_EOL;
             continue;
         }
+
+        // download
         $repo = new mc\repository($module_config);
         $repo->download();
         echo "[OK]" . PHP_EOL;
@@ -124,7 +133,7 @@ function entrypoint(string $config_file, string $entrypoint = "entrypoint.php") 
         
         // check if file exists
         $path = empty($module_config["destination"]) ? "./modules" : $module_config["destination"];
-        $path .= "/" . $module_config["repository"];
+//        $path .= "/" . $module_config["repository"];
         $path .= "/" . $module_config["entrypoint"];
         if(!file_exists($path)){
             echo "[warn] entry point {$path} for {$module_config['repository']} is missing" . PHP_EOL;
