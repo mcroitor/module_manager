@@ -1,7 +1,7 @@
 # module download manager
 
 Module Download Manager allows download project from GITHUB (or other GIT) repositories. The file 
-`manager.php` is a standalone minified version of manager, `src` folder contains 
+`manager.php` is a standalone minified version of manager, `src` folder contains development version.
 
 ## usage
 
@@ -30,7 +30,7 @@ The next default values are set:
 
  If _entrypoint_ is missing, no files will be included to autoload.
  
- It means, the minimal configuration file `config.json` with 2 modules will be:
+ It means, the minimal configuration file `modules.json` with 2 modules will be:
  
  ```json
  [

@@ -32,11 +32,11 @@ class repository
     public function __construct(array $config)
     {
         foreach ($config as $key => $value) {
-            $this->$key = $value;
+            $this->$key = filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
         }
 
         $this->source = $this->repository() . "-" . $this->branch();
-        if(!empty($config["source"])){
+        if (!empty($config["source"])) {
             $this->source = \mc\filesystem::implode($this->source(), $config["source"]);
         }
     }
@@ -101,7 +101,6 @@ class repository
      */
     public function url()
     {
-        // https://github.com/mcroitor/database/archive/refs/heads/main.zip
         return "{$this->origin}{$this->user}/{$this->repository}/archive/refs/heads/{$this->branch}.zip";
     }
 
@@ -134,7 +133,6 @@ class repository
         $zipfile = curl_exec($ch);
         curl_close($ch);
 
-        // $zipfile = tempnam(sys_get_temp_dir(), "github");
         $tmpname = \mc\filesystem::implode(self::TMPDIR, "{$this->user()}_{$this->repository()}.zip");
         file_put_contents($tmpname, $zipfile);
 
@@ -160,5 +158,4 @@ class repository
             \mc\filesystem::unlink($file);
         }
     }
-
 }
