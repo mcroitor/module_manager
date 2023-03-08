@@ -48,7 +48,7 @@ class filesystem
         $left = self::normalize($left, $separator);
         $right = self::normalize($right, $separator);
         $chunks = explode($separator, $left);
-        foreach(explode($separator, $right) as $chunk) {
+        foreach (explode($separator, $right) as $chunk) {
             $chunks[] = $chunk;
         }
         return implode($separator, $chunks);
@@ -60,11 +60,11 @@ class filesystem
         $to = self::normalize($to, $separator);
 
         foreach ($iterator = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::SELF_FIRST
-            ) as $item) {
+            new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        ) as $item) {
             if ($item->isDir()) {
-                if(!file_exists($to . $separator . $iterator->getSubPathname())) {
+                if (!file_exists($to . $separator . $iterator->getSubPathname())) {
                     mkdir($to . $separator . $iterator->getSubPathname());
                 }
             } else {

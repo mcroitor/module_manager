@@ -45,7 +45,7 @@ function info(string $config_file)
     $config = json_decode(file_get_contents($config_file), true);
     echo "module configuration:" . PHP_EOL;
     foreach ($config as $module_config) {
-        $repo = new mc\repository($module_config);
+        $repo = new \mc\repository($module_config);
         echo "\t" . $repo->user() . "/" . $repo->repository()
             . " => " . $repo->destination() . " : " . $repo->url() . PHP_EOL;
     }
@@ -57,7 +57,7 @@ function info(string $config_file)
 function install(string $config_file)
 {
     if (!file_exists($config_file)) {
-        echo "Config file not found" . PHP_EOL;
+        echo "Config file '{$config_file}' not found". PHP_EOL;
         return;
     }
     $config = json_decode(file_get_contents($config_file), true);
@@ -80,7 +80,7 @@ function install(string $config_file)
         }
 
         // download
-        $repo = new mc\repository($module_config);
+        $repo = new \mc\repository($module_config);
         $repo->download();
         echo "[OK]" . PHP_EOL;
     }
@@ -92,7 +92,7 @@ function install(string $config_file)
 function drop(string $config_file)
 {
     if (!file_exists($config_file)) {
-        echo "Config file not found" . PHP_EOL;
+        echo "Config file '{$config_file}' not found" . PHP_EOL;
         return;
     }
 
@@ -100,7 +100,7 @@ function drop(string $config_file)
 
     foreach ($config as $module_config) {
         echo "Dropping {$module_config['user']}/{$module_config['repository']} ... ";
-        $manager = new mc\repository($module_config);
+        $manager = new \mc\repository($module_config);
         $manager->drop();
         echo "[OK]" . PHP_EOL;
     }
@@ -147,6 +147,11 @@ function entrypoint(string $config_file, string $entrypoint = "entrypoint.php")
 
         // add include_once to result
         $result .= "include_once '{$path}';" . PHP_EOL;
+    }
+
+    $root = \mc\filesystem::root($entrypoint);
+    if (!file_exists($root)) {
+        mkdir($root);
     }
 
     file_put_contents($entrypoint, $result);
