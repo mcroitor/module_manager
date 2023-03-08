@@ -118,6 +118,10 @@ class repository
             $destination = $this->destination;
         }
 
+        if (!file_exists($destination)) {
+            mkdir($destination);
+        }
+
         $ch = curl_init($this->url());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
