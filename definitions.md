@@ -37,7 +37,7 @@ I use this project for creating structures mapped with tables in the database.
 {
     "user": "mcroitor",
     "repository": "metadb",
-    "source": "src",
+    "source": ".",
     "branch" : "main",
     "destination" : "metadb"    
 }
