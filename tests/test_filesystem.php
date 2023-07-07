@@ -13,7 +13,7 @@ function info(string $message, $object = null): void {
     echo PHP_EOL;
 }
 
-include_once __DIR__ . "/../mc/filesystem.php";
+include_once __DIR__ . "/../src/mc/filesystem.php";
 
 $unix_path = "/this/is/a/path";
 $windows_path = "c:\\\\this\\is\\a\\path";

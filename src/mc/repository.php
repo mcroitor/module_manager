@@ -5,23 +5,22 @@ namespace mc;
 /**
  * repository downloader
  */
-class repository
-{
-    public const ORIGIN         = "origin";
-    public const REPOSITORY     = "repository";
-    public const BRANCH         = "branch";
-    public const USER           = "user";
-    public const TOKEN          = "token";
-    public const SOURCE         = "source";
-    public const DESTINATION    = "destination";
+class repository {
 
-    private const TMPDIR        = "./__tmp__";
+    public const ORIGIN = "origin";
+    public const REPOSITORY = "repository";
+    public const BRANCH = "branch";
+    public const USER = "user";
+    public const TOKEN = "token";
+    public const SOURCE = "source";
+    public const DESTINATION = "destination";
+    private const TMPDIR = "./__tmp__";
 
-    private string $origin      = "https://github.com/";
+    private string $origin = "https://github.com/";
     private string $repository;
-    private string $branch      = "main";
+    private string $branch = "main";
     private string $user;
-    private string $token       = "";
+    private string $token = "";
     private string $source;
     private string $destination = "./modules";
 
@@ -29,8 +28,7 @@ class repository
      * create repository downloader from $config array
      * @param array $config
      */
-    public function __construct(array $config)
-    {
+    public function __construct(array $config) {
         foreach ($config as $key => $value) {
             $this->$key = filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
         }
@@ -45,8 +43,7 @@ class repository
      * returns repository host / origin
      * @return string
      */
-    public function origin()
-    {
+    public function origin() {
         return $this->origin;
     }
 
@@ -54,8 +51,7 @@ class repository
      * returns repository name
      * @return string
      */
-    public function repository()
-    {
+    public function repository() {
         return $this->repository;
     }
 
@@ -63,8 +59,7 @@ class repository
      * returns repository branch
      * @return string
      */
-    public function branch()
-    {
+    public function branch() {
         return $this->branch;
     }
 
@@ -72,8 +67,7 @@ class repository
      * returns user / organisation name, repository owner
      * @return string
      */
-    public function user()
-    {
+    public function user() {
         return $this->user;
     }
 
@@ -81,8 +75,7 @@ class repository
      * returns source for copy
      * @return string
      */
-    public function source()
-    {
+    public function source() {
         return $this->source;
     }
 
@@ -90,8 +83,7 @@ class repository
      * returns path for repository storing.
      * @return string
      */
-    public function destination()
-    {
+    public function destination() {
         return $this->destination;
     }
 
@@ -99,8 +91,7 @@ class repository
      * returns URL to the archived repository branch
      * @return string
      */
-    public function url()
-    {
+    public function url() {
         return "{$this->origin}{$this->user}/{$this->repository}/archive/refs/heads/{$this->branch}.zip";
     }
 
@@ -108,8 +99,7 @@ class repository
      * download repository branch to the $destination folder
      * @param string $destination
      */
-    public function download(string $destination = "")
-    {
+    public function download(string $destination = "") {
         if (!file_exists(self::TMPDIR)) {
             mkdir(self::TMPDIR);
         }
@@ -119,7 +109,8 @@ class repository
         }
 
         if (!file_exists($destination)) {
-            mkdir($destination);
+            echo "[debug] dest folder = {$destination}\n";
+            mkdir($destination, 0777, true);
         }
 
         $ch = curl_init($this->url());
@@ -138,24 +129,48 @@ class repository
         curl_close($ch);
 
         $tmpname = \mc\filesystem::implode(self::TMPDIR, "{$this->user()}_{$this->repository()}.zip");
+
         file_put_contents($tmpname, $zipfile);
+        return $tmpname;
+    }
 
+    /**
+     * unpack a repo from archive
+     * @param type $archive
+     */
+    public function unpack($archive) {
         $zip = new \ZipArchive();
-        $zip->open($tmpname);
-        $tmpdir = \mc\filesystem::implode(self::TMPDIR, "{$this->user()}_{$this->repository()}");
-        $zip->extractTo($tmpdir);
+        $zip->open($archive);
+        $files = [];
+        $count = $zip->count();
+
+        for ($i = 0; $i < $count; ++$i) {
+            $fileName = $zip->getNameIndex($i);
+            // skip dangerous files
+            if ($fileName[0] === '/' || $fileName[0] === '.' || strpos($fileName, '../')) {
+                continue;
+            }
+            $files[] = $fileName;
+        }
+
+        foreach ($files as $file) {
+            $content = $zip->getFromName($file);
+            $path = $this->destination . str_replace("{$this->repository}-{$this->branch}", "", $file);
+            if (substr($path, -1, 1) == '/') {
+                if (!file_exists($path)) {
+                    mkdir($path);
+                }
+                continue;
+            }
+            file_put_contents($path, $content);
+        }
         $zip->close();
-
-        \mc\filesystem::copy(\mc\filesystem::implode($tmpdir, $this->source()), $destination);
-
-        \mc\filesystem::unlink($tmpdir);
     }
 
     /**
      * remove content of $this->destination folder
      */
-    public function drop()
-    {
+    public function drop() {
         $files = glob($this->destination . "*");
 
         foreach ($files as $file) {
