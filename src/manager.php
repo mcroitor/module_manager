@@ -35,6 +35,7 @@ function usage()
 
 /**
  * print module configuration
+ * @param string config file
  */
 function info(string $config_file)
 {
@@ -53,6 +54,7 @@ function info(string $config_file)
 
 /**
  * install modules defined in the config file
+ * @param string config file
  */
 function install(string $config_file)
 {
@@ -67,7 +69,7 @@ function install(string $config_file)
         $path = empty($module_config["destination"]) ? "./modules" : $module_config["destination"];
         // check if destination folder exists, create it
         if (!file_exists($path)) {
-            mkdir($path);
+            mkdir($path, 0777, true);
         }
 
         $path .= DIRECTORY_SEPARATOR . $module_config["repository"];
@@ -81,13 +83,16 @@ function install(string $config_file)
 
         // download
         $repo = new \mc\repository($module_config);
-        $repo->download();
+        $repoZip = $repo->download();
+        $repo->unpack($repoZip);
+        
         echo "[OK]" . PHP_EOL;
     }
 }
 
 /**
  * drop modules defined in config file
+ * @param string config file
  */
 function drop(string $config_file)
 {
@@ -108,6 +113,7 @@ function drop(string $config_file)
 
 /**
  * reinstall modules defined in the config file
+ * @param string config file
  */
 function reinstall(string $config_file)
 {
@@ -119,6 +125,8 @@ function reinstall(string $config_file)
 
 /**
  * create entrypoint.php file
+ * @param string config file
+ * @param string entry point, default value 'entrypoint.php'
  */
 function entrypoint(string $config_file, string $entrypoint = "entrypoint.php")
 {
@@ -161,7 +169,7 @@ $opts = getopt("", $longopts);
 
 if (isset($opts["help"]) ||
     !(isset($opts["install"]) || isset($opts["info"]) ||
-     isset($opts["reinstall"]) || isset($opts["drop"]))) {
+     isset($opts["reinstall"]) || isset($opts["drop"]) )) {
     usage();
     exit(0);
 }
