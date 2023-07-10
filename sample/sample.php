@@ -9,10 +9,12 @@ $git = new repository([
     repository::REPOSITORY => "database",
     repository::BRANCH => "main",
     repository::USER => "mcroitor",
+    repository::SOURCE => "src"
 ]);
 
-mkdir(__DIR__ . "/../modules/");
+// mkdir(__DIR__ . "/../modules/");
 
 echo $git->url();
 
-$git->download(__DIR__ . "/../modules/database");
+$archive = $git->download();
+$git->unpack($archive, __DIR__ . "/../modules/database");
