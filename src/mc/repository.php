@@ -21,7 +21,7 @@ class repository {
     private string $branch = "main";
     private string $user;
     private string $token = "";
-    private string $source;
+    private string $source = "";
     private string $destination = "./modules";
 
     /**
@@ -104,15 +104,6 @@ class repository {
             mkdir(self::TMPDIR);
         }
 
-        if (empty($destination)) {
-            $destination = $this->destination;
-        }
-
-        if (!file_exists($destination)) {
-            echo "[debug] dest folder = {$destination}\n";
-            mkdir($destination, 0777, true);
-        }
-
         $ch = curl_init($this->url());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -138,7 +129,16 @@ class repository {
      * unpack a repo from archive
      * @param type $archive
      */
-    public function unpack($archive) {
+    public function unpack($archive, $destination = "") {
+        if (empty($destination)) {
+            $destination = $this->destination;
+        }
+
+        if (!file_exists($destination)) {
+            echo "[debug] dest folder = {$destination}\n";
+            mkdir($destination, 0777, true);
+        }
+
         $zip = new \ZipArchive();
         $zip->open($archive);
         $files = [];
@@ -150,15 +150,19 @@ class repository {
             if ($fileName[0] === '/' || $fileName[0] === '.' || strpos($fileName, '../')) {
                 continue;
             }
+            // skip files started with $this->source
+            if (strpos($fileName, $this->source) !== 0) {
+                continue;
+            }
             $files[] = $fileName;
         }
 
         foreach ($files as $file) {
             $content = $zip->getFromName($file);
-            $path = $this->destination . str_replace("{$this->repository}-{$this->branch}", "", $file);
+            $path = \mc\filesystem::implode($destination, str_replace($this->source, "", $file));
             if (substr($path, -1, 1) == '/') {
                 if (!file_exists($path)) {
-                    mkdir($path);
+                    mkdir($path, 0777, true);
                 }
                 continue;
             }
