@@ -129,7 +129,7 @@ class repository {
      * unpack a repo from archive
      * @param type $archive
      */
-    public function unpack($archive, $destination) {
+    public function unpack($archive, $destination = "") {
         if (empty($destination)) {
             $destination = $this->destination;
         }
